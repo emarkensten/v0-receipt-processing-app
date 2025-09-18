@@ -8,18 +8,29 @@ import { ReceiptList } from "@/components/receipt-list"
 import { ReceiptEditForm } from "@/components/receipt-edit-form"
 import { ExpenseSummary } from "@/components/expense-summary"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { WelcomeScreen } from "@/components/welcome-screen"
+import { ImageGrid } from "@/components/image-grid"
+import { ReceiptOverview } from "@/components/receipt-overview"
+import { ExpenseSummaryFinal } from "@/components/expense-summary-final"
+import { ReceiptEditModal } from "@/components/receipt-edit-modal"
+import { ReceiptDetailModal } from "@/components/receipt-detail-modal"
+import { ExpenseSelectionSheet } from "@/components/expense-selection-sheet"
 import { ArrowLeft, Trees } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-type AppState = "intro" | "upload" | "review" | "edit" | "summary"
+type AppState = "welcome" | "image-grid" | "review" | "summary"
 
 export default function HomePage() {
-  const [currentState, setCurrentState] = useState<AppState>("intro")
+  const [currentState, setCurrentState] = useState<AppState>("welcome")
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [receipts, setReceipts] = useState<Receipt[]>([])
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0, currentFile: "" })
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showExpenseSheet, setShowExpenseSheet] = useState(false)
 
   const handleFileUpload = async (files: File[]) => {
     setUploadedFiles([...uploadedFiles, ...files])
@@ -107,13 +118,84 @@ export default function HomePage() {
     }
   }
 
+  const handleSimpleFileUpload = (files: File[]) => {
+    setUploadedFiles([...uploadedFiles, ...files])
+    setShowExpenseSheet(false)
+    setCurrentState("image-grid")
+  }
+
+  const handleProcessReceipts = async () => {
+    setIsProcessing(true)
+    setError(null)
+    setProcessingProgress({ current: 0, total: uploadedFiles.length, currentFile: "" })
+
+    try {
+      const processedReceipts: Receipt[] = []
+
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const file = uploadedFiles[i]
+        setProcessingProgress({ current: i + 1, total: uploadedFiles.length, currentFile: file.name })
+        console.log("[v0] Processing file:", file.name)
+
+        const reader = new FileReader()
+        const dataUrl = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(file)
+        })
+
+        const response = await fetch("/api/process-receipt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ documentUrl: dataUrl }),
+        })
+
+        if (!response.ok) {
+          let errorMessage = "Kunde inte bearbeta kvittot"
+          try {
+            const errorData = await response.json()
+            if (errorData.error && typeof errorData.error === "string") {
+              errorMessage = errorData.error
+            }
+          } catch (e) {
+            console.error("Failed to parse error response")
+          }
+          throw new Error(errorMessage)
+        }
+
+        const result = await response.json()
+        processedReceipts.push(result)
+      }
+
+      setReceipts(processedReceipts)
+      setCurrentState("review")
+    } catch (err) {
+      console.error("Processing error:", err)
+      const errorMessage = err instanceof Error ? err.message : "Ett oväntat fel inträffade"
+      setError(errorMessage)
+    } finally {
+      setIsProcessing(false)
+      setProcessingProgress({ current: 0, total: 0, currentFile: "" })
+    }
+  }
+
   const handleRemoveFile = (index: number) => {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
 
   const handleEditReceipt = (receipt: Receipt) => {
     setEditingReceipt(receipt)
-    setCurrentState("edit")
+    setShowEditModal(true)
+  }
+
+  const getReceiptFile = (receipt: Receipt) => {
+    const receiptIndex = receipts.findIndex(r => r.id === receipt.id)
+    return uploadedFiles[receiptIndex] || null
+  }
+
+  const handleShowAllData = () => {
+    setShowDetailModal(true)
   }
 
   const handleSaveReceipt = (updatedReceipt: Receipt) => {
@@ -128,101 +210,65 @@ export default function HomePage() {
 
   const handleSubmitExpenses = () => {
     alert("Ersättningsansökan skickad till SJ Kundtjänst!")
-    setCurrentState("intro")
+    setCurrentState("welcome")
     setUploadedFiles([])
     setReceipts([])
   }
 
   const renderContent = () => {
     switch (currentState) {
-      case "intro":
+      case "welcome":
         return (
-          <div className="max-w-md mx-auto text-center space-y-6">
-            <div className="flex justify-end mb-4">
-              <ThemeToggle />
-            </div>
-            <div className="flex justify-center">
-              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
-                <Trees className="w-12 h-12 text-primary" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold mb-2">Egna utlägg</h1>
-              <p className="text-muted-foreground">
-                Om du lagt ut pengar för mat, boende eller alternativa transporter kan du ansöka om ersättning för det.
-              </p>
-            </div>
-            <div className="space-y-3">
-              <Button onClick={() => setCurrentState("upload")} className="w-full" size="lg">
-                Lägg till egna utlägg
-              </Button>
-              <Button variant="outline" onClick={() => alert("Funktionen kommer snart")} className="w-full">
-                Hoppa över
-              </Button>
-            </div>
-          </div>
+          <WelcomeScreen 
+            onStartExpenseFlow={() => setShowExpenseSheet(true)}
+            onSkip={() => setCurrentState("summary")}
+            showExpenseSheet={showExpenseSheet}
+            onCloseExpenseSheet={() => setShowExpenseSheet(false)}
+            uploadedFiles={uploadedFiles}
+            onFileUpload={handleSimpleFileUpload}
+            onRemoveFile={handleRemoveFile}
+            isProcessing={isProcessing}
+            error={error}
+            processingProgress={processingProgress}
+          />
         )
 
-      case "upload":
+
+      case "image-grid":
         return (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => setCurrentState("intro")}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-xl font-semibold">Lägg till egna utlägg</h1>
-              </div>
-              <ThemeToggle />
-            </div>
-
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <ReceiptUpload
-              onUpload={handleFileUpload}
-              isProcessing={isProcessing}
+          <>
+            <ImageGrid 
               uploadedFiles={uploadedFiles}
               onRemoveFile={handleRemoveFile}
+              onAddMoreFiles={() => setShowExpenseSheet(true)}
+              onProcessFiles={handleProcessReceipts}
+              isProcessing={isProcessing}
+              processingProgress={processingProgress}
             />
-
-            {uploadedFiles.length > 0 && !isProcessing && (
-              <div className="text-center">
-                <Button onClick={() => setCurrentState("review")}>Granska bilder</Button>
-              </div>
-            )}
-          </div>
+            
+            {/* Expense Selection Sheet */}
+            <ExpenseSelectionSheet
+              isOpen={showExpenseSheet}
+              onClose={() => setShowExpenseSheet(false)}
+              uploadedFiles={uploadedFiles}
+              onFileUpload={handleSimpleFileUpload}
+              onRemoveFile={handleRemoveFile}
+              isProcessing={isProcessing}
+              error={error}
+              processingProgress={processingProgress}
+            />
+          </>
         )
 
       case "review":
         return (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => setCurrentState("upload")}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-xl font-semibold">Lägg till egna utlägg</h1>
-              </div>
-              <ThemeToggle />
-            </div>
-
-            <ReceiptList receipts={receipts} onEdit={handleEditReceipt} onDelete={handleDeleteReceipt} />
-
-            {receipts.length > 0 && (
-              <div className="space-y-4">
-                <Button variant="outline" onClick={() => setCurrentState("upload")} className="w-full">
-                  Ladda upp flera bilder
-                </Button>
-                <Button onClick={() => setCurrentState("summary")} className="w-full">
-                  Visa all data som hämtats från bilderna
-                </Button>
-              </div>
-            )}
-          </div>
+          <ReceiptOverview 
+            receipts={receipts}
+            uploadedFiles={uploadedFiles}
+            onEditReceipt={handleEditReceipt}
+            onShowAllData={handleShowAllData}
+            onSave={() => setCurrentState("summary")}
+          />
         )
 
       case "edit":
@@ -235,7 +281,6 @@ export default function HomePage() {
                 </Button>
                 <span className="text-sm text-muted-foreground">Avbryt</span>
               </div>
-              <ThemeToggle />
             </div>
 
             {editingReceipt && (
@@ -250,19 +295,10 @@ export default function HomePage() {
 
       case "summary":
         return (
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => setCurrentState("review")}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-sm text-muted-foreground">Avbryt</span>
-              </div>
-              <ThemeToggle />
-            </div>
-
-            <ExpenseSummary receipts={receipts} onSubmit={handleSubmitExpenses} />
-          </div>
+          <ExpenseSummaryFinal 
+            receipts={receipts}
+            onSubmit={handleSubmitExpenses}
+          />
         )
 
       default:
@@ -270,5 +306,32 @@ export default function HomePage() {
     }
   }
 
-  return <div className="min-h-screen bg-background p-4">{renderContent()}</div>
+  return (
+    <div className="min-h-screen bg-background p-4">
+      {renderContent()}
+      
+      {/* Modals */}
+      <ReceiptEditModal
+        receipt={editingReceipt}
+        receiptFile={editingReceipt ? getReceiptFile(editingReceipt) : null}
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setEditingReceipt(null)
+        }}
+        onSave={(updatedReceipt) => {
+          setReceipts(receipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r)))
+          setShowEditModal(false)
+          setEditingReceipt(null)
+        }}
+      />
+      
+      <ReceiptDetailModal
+        receipts={receipts}
+        uploadedFiles={uploadedFiles}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+      />
+    </div>
+  )
 }

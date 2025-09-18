@@ -3,75 +3,135 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* SJ Shadcn Theme - Baserat på SJ:s designsystem */
+
 :root {
-  --background: oklch(1 0 0); /* White */
-  --foreground: oklch(0.3 0 0); /* Charcoal */
-  --card: oklch(0.98 0.02 142); /* Light green tint */
-  --card-foreground: oklch(0.3 0 0);
+  --radius: 0.65rem;
+  
+  /* Grundläggande färger */
+  --background: oklch(0.99 0.005 106); /* Vit bakgrund */
+  --foreground: oklch(0.15 0.01 260); /* Mörkgrå text */
+  
+  /* Kort och popover */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.01 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.3 0 0);
-  --primary: oklch(0.55 0.15 142); /* SJ Green #00A651 */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.75 0.12 100); /* Bright green accent */
-  --secondary-foreground: oklch(0.3 0 0);
-  --muted: oklch(0.98 0.02 142);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.55 0.15 142);
-  --accent-foreground: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.01 260);
+  
+  /* Primärfärg - SJ:s gröna (#00A651) */
+  --primary: oklch(0.65 0.15 145); /* SJ Grön */
+  --primary-foreground: oklch(0.98 0.01 145);
+  
+  /* Sekundära färger */
+  --secondary: oklch(0.96 0.005 240); /* Ljusgrå */
+  --secondary-foreground: oklch(0.25 0.01 260);
+  
+  /* Muted färger */
+  --muted: oklch(0.95 0.005 240);
+  --muted-foreground: oklch(0.5 0.01 260);
+  
+  /* Accent färger */
+  --accent: oklch(0.95 0.005 240);
+  --accent-foreground: oklch(0.25 0.01 260);
+  
+  /* Destructive - SJ:s röda nyans för fel */
   --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0 0);
-  --input: oklch(1 0 0);
-  --ring: oklch(0.55 0.15 142 / 0.5);
-  --chart-1: oklch(0.55 0.15 142);
-  --chart-2: oklch(0.75 0.12 100);
-  --chart-3: oklch(0.98 0.02 142);
-  --chart-4: oklch(0.3 0 0);
-  --chart-5: oklch(0.9 0 0);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.98 0.02 142);
-  --sidebar-foreground: oklch(0.3 0 0);
-  --sidebar-primary: oklch(0.55 0.15 142);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.75 0.12 100);
-  --sidebar-accent-foreground: oklch(0.3 0 0);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.55 0.15 142 / 0.5);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  
+  /* Kanter och input */
+  --border: oklch(0.9 0.005 240);
+  --input: oklch(0.9 0.005 240);
+  --ring: oklch(0.65 0.15 145); /* Samma som primary */
+  
+  /* Chart färger - baserat på SJ:s färgpalett */
+  --chart-1: oklch(0.65 0.15 145); /* SJ Grön */
+  --chart-2: oklch(0.45 0.15 220); /* SJ Blå */
+  --chart-3: oklch(0.55 0.12 280); /* SJ Lila */
+  --chart-4: oklch(0.7 0.18 60); /* SJ Gul */
+  --chart-5: oklch(0.6 0.2 25); /* SJ Röd */
+  
+  /* Sidebar */
+  --sidebar: oklch(0.98 0.005 106);
+  --sidebar-foreground: oklch(0.15 0.01 260);
+  --sidebar-primary: oklch(0.65 0.15 145);
+  --sidebar-primary-foreground: oklch(0.98 0.01 145);
+  --sidebar-accent: oklch(0.95 0.005 240);
+  --sidebar-accent-foreground: oklch(0.25 0.01 260);
+  --sidebar-border: oklch(0.9 0.005 240);
+  --sidebar-ring: oklch(0.65 0.15 145);
 }
 
 .dark {
-  --background: oklch(0.12 0 0); /* Dark charcoal background */
-  --foreground: oklch(0.95 0 0); /* Light text */
-  --card: oklch(0.15 0 0); /* Slightly lighter card background */
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.15 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.65 0.15 142); /* Brighter SJ green for dark mode */
-  --primary-foreground: oklch(0.12 0 0); /* Dark text on green */
-  --secondary: oklch(0.25 0 0); /* Dark secondary background */
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.65 0 0); /* Muted text */
-  --accent: oklch(0.65 0.15 142); /* SJ green accent */
-  --accent-foreground: oklch(0.12 0 0);
-  --destructive: oklch(0.55 0.2 25); /* Error red for dark mode */
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.25 0 0); /* Subtle borders */
-  --input: oklch(0.18 0 0); /* Input field background */
-  --ring: oklch(0.65 0.15 142 / 0.5); /* Focus ring */
-  --chart-1: oklch(0.65 0.15 142);
-  --chart-2: oklch(0.75 0.12 100);
-  --chart-3: oklch(0.45 0.1 200);
-  --chart-4: oklch(0.55 0.15 300);
-  --chart-5: oklch(0.65 0.1 50);
-  --sidebar: oklch(0.18 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.65 0.15 142);
-  --sidebar-primary-foreground: oklch(0.12 0 0);
-  --sidebar-accent: oklch(0.25 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.65 0.15 142 / 0.5);
+  /* Mörkt tema baserat på SJ:s designsystem */
+  --background: oklch(0.12 0.01 260);
+  --foreground: oklch(0.95 0.005 106);
+  
+  --card: oklch(0.18 0.01 260);
+  --card-foreground: oklch(0.95 0.005 106);
+  --popover: oklch(0.18 0.01 260);
+  --popover-foreground: oklch(0.95 0.005 106);
+  
+  /* Ljusare version av SJ:s gröna för mörkt tema */
+  --primary: oklch(0.7 0.12 150);
+  --primary-foreground: oklch(0.15 0.05 150);
+  
+  --secondary: oklch(0.25 0.01 260);
+  --secondary-foreground: oklch(0.95 0.005 106);
+  
+  --muted: oklch(0.25 0.01 260);
+  --muted-foreground: oklch(0.65 0.01 260);
+  
+  --accent: oklch(0.25 0.01 260);
+  --accent-foreground: oklch(0.95 0.005 106);
+  
+  --destructive: oklch(0.7 0.18 25);
+  --destructive-foreground: oklch(0.15 0.02 25);
+  
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.12 150);
+  
+  /* Mörka chart färger */
+  --chart-1: oklch(0.7 0.12 150);
+  --chart-2: oklch(0.6 0.12 220);
+  --chart-3: oklch(0.65 0.1 280);
+  --chart-4: oklch(0.75 0.15 60);
+  --chart-5: oklch(0.7 0.18 25);
+  
+  --sidebar: oklch(0.18 0.01 260);
+  --sidebar-foreground: oklch(0.95 0.005 106);
+  --sidebar-primary: oklch(0.7 0.12 150);
+  --sidebar-primary-foreground: oklch(0.15 0.05 150);
+  --sidebar-accent: oklch(0.25 0.01 260);
+  --sidebar-accent-foreground: oklch(0.95 0.005 106);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.6 0.12 150);
+}
+
+/* SJ-specifika utility klasser */
+.sj-green {
+  background-color: #00A651;
+  color: white;
+}
+
+.sj-green-light {
+  background-color: #E8F5E8;
+  color: #00A651;
+}
+
+.sj-blue {
+  background-color: #005AAA;
+  color: white;
+}
+
+.sj-yellow {
+  background-color: #FFD320;
+  color: #1a1a1a;
+}
+
+.sj-red {
+  background-color: #E60000;
+  color: white;
 }
 
 @theme inline {
