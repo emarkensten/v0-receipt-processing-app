@@ -1,5 +1,6 @@
 import { generateObject } from "ai"
 import { mistral } from "@ai-sdk/mistral"
+import { Mistral } from "@mistralai/mistralai"
 import { receiptSchema } from "./schema"
 import { receiptPrompt } from "./prompt"
 import type { Receipt } from "./types"
@@ -12,29 +13,15 @@ export class ReceiptProcessor {
 
     try {
       console.log("[v0] Starting AI processing with Mistral")
-      const result = await generateObject({
-        model: mistral("mistral-medium-latest"),
-        schema: receiptSchema,
-        abortSignal: AbortSignal.timeout(30000), // 30 second timeout
-        messages: [
-          {
-            role: "system",
-            content: receiptPrompt,
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "image",
-                image: documentUrl,
-              },
-            ],
-          },
-        ],
-      })
-
-      console.log("[v0] AI processing completed successfully")
-      return result.object
+      
+      // Check if it's a PDF - use OCR API
+      if (documentUrl.startsWith('data:application/pdf')) {
+        console.log("[v0] Processing PDF with Mistral OCR API")
+        return await this.#processPDF(documentUrl)
+      } else {
+        console.log("[v0] Processing image with Mistral Vision API")
+        return await this.#processImage(documentUrl)
+      }
     } catch (error) {
       console.error("[v0] Receipt processing error:", error)
 
@@ -58,6 +45,77 @@ export class ReceiptProcessor {
 
       throw new Error("Kunde inte bearbeta kvittot. Försök igen eller kontakta support.")
     }
+  }
+
+  async #processImage(documentUrl: string) {
+    const result = await generateObject({
+      model: mistral("mistral-medium-latest"),
+      schema: receiptSchema,
+      abortSignal: AbortSignal.timeout(30000), // 30 second timeout
+      messages: [
+        {
+          role: "system",
+          content: receiptPrompt,
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              image: documentUrl,
+            },
+          ],
+        },
+      ],
+    })
+
+    console.log("[v0] AI processing completed successfully")
+    return result.object
+  }
+
+  async #processPDF(documentUrl: string) {
+    const apiKey = process.env.MISTRAL_API_KEY
+    if (!apiKey) {
+      throw new Error("MISTRAL_API_KEY environment variable is required")
+    }
+
+    const client = new Mistral({ apiKey })
+    
+    console.log("[v0] Processing PDF with direct base64 OCR...")
+    
+    // Use direct base64 PDF processing (according to docs)
+    const ocrResponse = await client.ocr.process({
+      model: "mistral-ocr-latest",
+      document: {
+        type: "document_url",
+        documentUrl: documentUrl,
+      },
+      includeImageBase64: false
+    })
+
+    // Get the extracted text
+    const extractedText = ocrResponse.pages?.map(page => page.markdown).join('\n\n') || ''
+    console.log("[v0] OCR extracted text length:", extractedText.length)
+
+    // Use the extracted text with structured generation
+    const result = await generateObject({
+      model: mistral("mistral-medium-latest"),
+      schema: receiptSchema,
+      abortSignal: AbortSignal.timeout(30000),
+      messages: [
+        {
+          role: "system",
+          content: receiptPrompt,
+        },
+        {
+          role: "user",
+          content: `Här är texten extraherad från ett kvitto:\n\n${extractedText}`,
+        },
+      ],
+    })
+
+    console.log("[v0] AI processing completed successfully")
+    return result.object
   }
 
   public async getReceipt(params: { documentUrl: string }): Promise<Receipt> {

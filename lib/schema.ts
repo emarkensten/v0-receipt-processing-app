@@ -5,7 +5,7 @@ export const sjValidationSchema = z.object({
   is_reimbursable: z.boolean().describe("Whether this expense is reimbursable according to SJ rules"),
   contains_alcohol: z.boolean().describe("Whether the receipt contains alcohol purchases"),
   contains_tobacco: z.boolean().describe("Whether the receipt contains tobacco purchases"),
-  warning_message: z.string().optional().describe("Warning message if there are issues"),
+  warning_message: z.string().nullable().optional().describe("Warning message if there are issues"),
   approval_status: z.enum(["approved", "rejected", "warning"]).describe("Approval status based on SJ rules"),
 })
 
@@ -14,14 +14,14 @@ export const receiptSchema = z.object({
   total_amount: z.number().describe("Total amount on the receipt"),
   currency: z.string().describe("Currency code (e.g., SEK, EUR, USD)"),
   date: z.string().describe("Date of the transaction in ISO format"),
-  tax_amount: z.number().optional().describe("Tax amount if available"),
-  tax_rate: z.number().optional().describe("Tax rate percentage if available"),
-  tax_type: z.string().optional().describe("Type of tax (e.g., VAT, GST)"),
+  tax_amount: z.number().nullable().optional().describe("Tax amount if available"),
+  tax_rate: z.number().nullable().optional().describe("Tax rate percentage if available"),
+  tax_type: z.string().nullable().optional().describe("Type of tax (e.g., VAT, GST)"),
   language: z.string().describe("Language of the receipt"),
-  website: z.string().optional().describe("Website of the merchant"),
-  email: z.string().optional().describe("Email address if found on receipt"),
-  register_number: z.string().optional().describe("Cash register number"),
-  cashier_name: z.string().optional().describe("Cashier name if available"),
+  website: z.string().nullable().optional().describe("Website of the merchant"),
+  email: z.string().nullable().optional().describe("Email address if found on receipt"),
+  register_number: z.string().nullable().optional().describe("Cash register number"),
+  cashier_name: z.string().nullable().optional().describe("Cashier name if available"),
   items: z
     .array(
       z.object({

@@ -25,7 +25,7 @@ export function ReceiptUpload({ onUpload, isProcessing, uploadedFiles, onRemoveF
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpg", ".jpeg"],
+      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
       "application/pdf": [".pdf"],
     },
     multiple: true,
@@ -53,7 +53,7 @@ export function ReceiptUpload({ onUpload, isProcessing, uploadedFiles, onRemoveF
           <p className="text-muted-foreground mb-4">
             {isProcessing
               ? "AI:n läser dina kvitton och extraherar information"
-              : "Fotografera alla dina kvitton och ladda upp för att fortsätta"}
+              : "Ladda upp bilder (PNG, JPG, JPEG) eller PDF-filer av dina kvitton för att fortsätta"}
           </p>
           {!isProcessing && (
             <Button variant="outline" size="sm">

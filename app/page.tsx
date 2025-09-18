@@ -38,6 +38,7 @@ export default function HomePage() {
           reader.readAsDataURL(file)
         })
 
+        console.log("[v0] Data URL format:", dataUrl.substring(0, 50) + "...")
         console.log("[v0] Making API request")
         const response = await fetch("/api/process-receipt", {
           method: "POST",
