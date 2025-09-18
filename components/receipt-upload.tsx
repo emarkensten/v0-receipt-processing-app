@@ -4,9 +4,10 @@ import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, Loader2, X } from "lucide-react"
+import { Upload, Loader2, X, Image as ImageIcon, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { FullscreenReceiptModal } from "@/components/fullscreen-receipt-modal"
+import type { ProcessedImage } from "@/lib/utils/image-preprocessor"
 
 interface ReceiptUploadProps {
   onUpload: (files: File[]) => void
@@ -17,10 +18,41 @@ interface ReceiptUploadProps {
 
 export function ReceiptUpload({ onUpload, isProcessing, uploadedFiles, onRemoveFile }: ReceiptUploadProps) {
   const [fullscreenFile, setFullscreenFile] = useState<File | null>(null)
+  const [isPreprocessing, setIsPreprocessing] = useState(false)
+  const [preprocessingStatus, setPreprocessingStatus] = useState<string>("")
   
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      onUpload(acceptedFiles)
+    async (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0) return
+      
+      setIsPreprocessing(true)
+      setPreprocessingStatus("Förbehandlar bilder...")
+      
+      try {
+        console.log(`[ReceiptUpload] Processing ${acceptedFiles.length} files`)
+        
+        // Dynamic import to avoid SSR issues
+        const { defaultImagePreprocessor } = await import("@/lib/utils/image-preprocessor")
+        const processedResults = await defaultImagePreprocessor.processFiles(acceptedFiles)
+        const processedFiles = processedResults.map(result => result.file)
+        
+        // Log processing results
+        processedResults.forEach((result, index) => {
+          const sizeDiff = result.originalSize - result.compressedSize
+          const compressionRatio = ((sizeDiff / result.originalSize) * 100).toFixed(1)
+          console.log(`[ReceiptUpload] File ${index + 1}: ${result.originalFormat} → ${result.finalFormat}, saved ${compressionRatio}%`)
+        })
+        
+        setPreprocessingStatus(`Bearbetade ${processedFiles.length} filer`)
+        onUpload(processedFiles)
+      } catch (error) {
+        console.error('[ReceiptUpload] Preprocessing failed:', error)
+        // Fallback to original files if preprocessing fails
+        onUpload(acceptedFiles)
+      } finally {
+        setIsPreprocessing(false)
+        setTimeout(() => setPreprocessingStatus(""), 2000)
+      }
     },
     [onUpload],
   )
@@ -28,11 +60,11 @@ export function ReceiptUpload({ onUpload, isProcessing, uploadedFiles, onRemoveF
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".heic", ".heif"],
       "application/pdf": [".pdf"],
     },
     multiple: true,
-    disabled: isProcessing,
+    disabled: isProcessing || isPreprocessing,
   })
 
   return (
@@ -49,16 +81,27 @@ export function ReceiptUpload({ onUpload, isProcessing, uploadedFiles, onRemoveF
           <input {...getInputProps()} />
           {isProcessing ? (
             <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+          ) : isPreprocessing ? (
+            <Zap className="h-12 w-12 text-amber-600 animate-pulse mb-4" />
           ) : (
             <Upload className="h-12 w-12 text-primary mb-4" />
           )}
-          <h3 className="text-lg font-semibold text-foreground mb-2">{isProcessing ? "Bearbetar kvitton..." : "Ladda upp bilder"}</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {isProcessing 
+              ? "Bearbetar kvitton..." 
+              : isPreprocessing 
+                ? "Förbehandlar bilder..." 
+                : "Ladda upp bilder"
+            }
+          </h3>
           <p className="text-muted-foreground mb-4">
             {isProcessing
               ? "AI:n läser dina kvitton och extraherar information"
-              : "Ladda upp bilder (PNG, JPG, JPEG) eller PDF-filer av dina kvitton för att fortsätta"}
+              : isPreprocessing
+                ? preprocessingStatus || "Konverterar HEIC-filer och optimerar bildstorlek"
+                : "Ladda upp bilder (PNG, JPG, JPEG, HEIC) eller PDF-filer av dina kvitton för att fortsätta"}
           </p>
-          {!isProcessing && (
+          {!isProcessing && !isPreprocessing && (
             <Button variant="outline" size="sm">
               Välj filer eller dra och släpp
             </Button>

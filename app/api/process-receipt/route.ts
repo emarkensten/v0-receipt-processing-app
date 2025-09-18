@@ -15,12 +15,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid document format" }, { status: 400 })
     }
     
-    // Ensure it's a supported format (images or PDF)
-    if (documentUrl.startsWith('data:') && !documentUrl.match(/^data:(image\/(png|jpeg|jpg|gif|webp)|application\/pdf);base64,/)) {
-      return NextResponse.json({ 
-        error: "Endast bildfiler (PNG, JPG, JPEG, GIF, WebP) och PDF-filer stöds." 
-      }, { status: 400 })
-    }
+      // Ensure it's a supported format (images or PDF)
+      if (documentUrl.startsWith('data:') && !documentUrl.match(/^data:(image\/(png|jpeg|jpg|gif|webp|heic|heif)|application\/pdf);base64,/)) {
+        return NextResponse.json({ 
+          error: "Endast bildfiler (PNG, JPG, JPEG, GIF, WebP, HEIC) och PDF-filer stöds." 
+        }, { status: 400 })
+      }
 
     const processor = new ReceiptProcessor()
     const result = await processor.getReceipt({ documentUrl })
