@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, ImageIcon, Loader2, X } from "lucide-react"
+import { Upload, Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { FullscreenReceiptModal } from "@/components/fullscreen-receipt-modal"
 

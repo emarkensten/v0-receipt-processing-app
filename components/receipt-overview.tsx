@@ -117,12 +117,12 @@ export function ReceiptOverview({
                   <div className="mt-3 text-sm">
                     {receipt.sj_approval.contains_alcohol && (
                       <div className="text-destructive font-medium">
-                        "Alkohol ersätts inte"
+                            &quot;Alkohol ersätts inte&quot;
                       </div>
                     )}
                     {receipt.sj_approval.contains_tobacco && (
                       <div className="text-destructive font-medium">
-                        "Tobak ersätts inte"
+                        &quot;Tobak ersätts inte&quot;
                       </div>
                     )}
                   </div>

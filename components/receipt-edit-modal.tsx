@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,10 +20,19 @@ interface ReceiptEditModalProps {
 }
 
 export function ReceiptEditModal({ receipt, receiptFile, isOpen, onClose, onSave }: ReceiptEditModalProps) {
-  const [category, setCategory] = useState(receipt?.category || "Mat")
+  const [category, setCategory] = useState("Mat")
   const [currency, setCurrency] = useState("SEK")
-  const [amount, setAmount] = useState(receipt?.amount?.toString() || "")
+  const [amount, setAmount] = useState("")
   const [showFullscreen, setShowFullscreen] = useState(false)
+
+  // Update state when receipt changes
+  useEffect(() => {
+    if (receipt) {
+      setCategory(receipt.category || "Mat")
+      setCurrency(receipt.currency || "SEK")
+      setAmount(receipt.amount?.toString() || "")
+    }
+  }, [receipt])
 
   if (!isOpen || !receipt) return null
 
@@ -35,7 +44,6 @@ export function ReceiptEditModal({ receipt, receiptFile, isOpen, onClose, onSave
       amount: parseFloat(amount) || receipt.amount,
     }
     onSave(updatedReceipt)
-    onClose()
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ImageIcon, X } from "lucide-react"
+import { X } from "lucide-react"
 import { FullscreenReceiptModal } from "@/components/fullscreen-receipt-modal"
 
 interface ImageGridProps {

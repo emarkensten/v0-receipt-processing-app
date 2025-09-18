@@ -12,14 +12,10 @@ export class ReceiptProcessor {
     }
 
     try {
-      console.log("[v0] Starting AI processing with Mistral")
-      
       // Check if it's a PDF - use OCR API
       if (documentUrl.startsWith('data:application/pdf')) {
-        console.log("[v0] Processing PDF with Mistral OCR API")
         return await this.#processPDF(documentUrl)
       } else {
-        console.log("[v0] Processing image with Mistral Vision API")
         return await this.#processImage(documentUrl)
       }
     } catch (error) {
@@ -69,7 +65,6 @@ export class ReceiptProcessor {
       ],
     })
 
-    console.log("[v0] AI processing completed successfully")
     return result.object
   }
 
@@ -80,8 +75,6 @@ export class ReceiptProcessor {
     }
 
     const client = new Mistral({ apiKey })
-    
-    console.log("[v0] Processing PDF with direct base64 OCR...")
     
     // Use direct base64 PDF processing (according to docs)
     const ocrResponse = await client.ocr.process({
@@ -95,7 +88,6 @@ export class ReceiptProcessor {
 
     // Get the extracted text
     const extractedText = ocrResponse.pages?.map(page => page.markdown).join('\n\n') || ''
-    console.log("[v0] OCR extracted text length:", extractedText.length)
 
     // Use the extracted text with structured generation
     const result = await generateObject({
@@ -114,7 +106,6 @@ export class ReceiptProcessor {
       ],
     })
 
-    console.log("[v0] AI processing completed successfully")
     return result.object
   }
 

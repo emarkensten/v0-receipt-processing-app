@@ -3,11 +3,6 @@
 import { useState } from "react"
 import type { Receipt } from "@/lib/types"
 import { Button } from "@/components/ui/button"
-import { ReceiptUpload } from "@/components/receipt-upload"
-import { ReceiptList } from "@/components/receipt-list"
-import { ReceiptEditForm } from "@/components/receipt-edit-form"
-import { ExpenseSummary } from "@/components/expense-summary"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { WelcomeScreen } from "@/components/welcome-screen"
 import { ImageGrid } from "@/components/image-grid"
 import { ReceiptOverview } from "@/components/receipt-overview"
@@ -15,8 +10,8 @@ import { ExpenseSummaryFinal } from "@/components/expense-summary-final"
 import { ReceiptEditModal } from "@/components/receipt-edit-modal"
 import { ReceiptDetailModal } from "@/components/receipt-detail-modal"
 import { ExpenseSelectionSheet } from "@/components/expense-selection-sheet"
-import { ArrowLeft, Trees } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ReimbursementSettingsProvider } from "@/lib/contexts/reimbursement-settings-context"
+import { ArrowLeft } from "lucide-react"
 
 type AppState = "welcome" | "image-grid" | "review" | "summary"
 
@@ -41,7 +36,6 @@ export default function HomePage() {
       const processedReceipts: Receipt[] = []
 
       for (const file of files) {
-        console.log("[v0] Processing file:", file.name)
 
         const reader = new FileReader()
         const dataUrl = await new Promise<string>((resolve) => {
@@ -49,8 +43,6 @@ export default function HomePage() {
           reader.readAsDataURL(file)
         })
 
-        console.log("[v0] Data URL format:", dataUrl.substring(0, 50) + "...")
-        console.log("[v0] Making API request")
         const response = await fetch("/api/process-receipt", {
           method: "POST",
           headers: {
@@ -59,8 +51,6 @@ export default function HomePage() {
           body: JSON.stringify({ documentUrl: dataUrl }),
         })
 
-        console.log("[v0] Response status:", response.status)
-        console.log("[v0] Response headers:", Object.fromEntries(response.headers.entries()))
 
         const responseClone = response.clone()
 
@@ -88,7 +78,6 @@ export default function HomePage() {
         let receiptData
         try {
           receiptData = await response.json()
-          console.log("[v0] Successfully parsed JSON response")
         } catch (jsonError) {
           console.error("[v0] Failed to parse JSON response:", jsonError)
           try {
@@ -135,7 +124,6 @@ export default function HomePage() {
       for (let i = 0; i < uploadedFiles.length; i++) {
         const file = uploadedFiles[i]
         setProcessingProgress({ current: i + 1, total: uploadedFiles.length, currentFile: file.name })
-        console.log("[v0] Processing file:", file.name)
 
         const reader = new FileReader()
         const dataUrl = await new Promise<string>((resolve) => {
@@ -298,6 +286,7 @@ export default function HomePage() {
           <ExpenseSummaryFinal 
             receipts={receipts}
             onSubmit={handleSubmitExpenses}
+            onBack={() => setCurrentState("review")}
           />
         )
 
@@ -307,31 +296,33 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      {renderContent()}
-      
-      {/* Modals */}
-      <ReceiptEditModal
-        receipt={editingReceipt}
-        receiptFile={editingReceipt ? getReceiptFile(editingReceipt) : null}
-        isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false)
-          setEditingReceipt(null)
-        }}
-        onSave={(updatedReceipt) => {
-          setReceipts(receipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r)))
-          setShowEditModal(false)
-          setEditingReceipt(null)
-        }}
-      />
-      
-      <ReceiptDetailModal
-        receipts={receipts}
-        uploadedFiles={uploadedFiles}
-        isOpen={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
-      />
-    </div>
+    <ReimbursementSettingsProvider>
+      <div className="min-h-screen bg-background p-4">
+        {renderContent()}
+        
+        {/* Modals */}
+        <ReceiptEditModal
+          receipt={editingReceipt}
+          receiptFile={editingReceipt ? getReceiptFile(editingReceipt) : null}
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false)
+            setEditingReceipt(null)
+          }}
+          onSave={(updatedReceipt) => {
+            setReceipts(receipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r)))
+            setShowEditModal(false)
+            setEditingReceipt(null)
+          }}
+        />
+        
+        <ReceiptDetailModal
+          receipts={receipts}
+          uploadedFiles={uploadedFiles}
+          isOpen={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+        />
+      </div>
+    </ReimbursementSettingsProvider>
   )
 }

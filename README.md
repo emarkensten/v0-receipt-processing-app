@@ -12,17 +12,20 @@ Denna applikation hjälper resenärer att enkelt ansöka om ersättning för egn
 ## ✨ Funktioner
 
 ### 🤖 AI-driven Kvittobearbetning
+
 - **Hybrid OCR-approach**: Kombinerar Mistral OCR och Vision API för optimal resultat
 - **Strukturerad dataextrahering**: Zod-schema-driven extrahering av kvittoinformation
 - **Smart kategorisering**: AI-baserad klassificering enligt SJ:s ersättningsregler
 - **Multi-format stöd**: Hanterar både bilder och PDF-dokument automatiskt
 
 ### 📋 SJ-specifik Validering
+
 - **Regelverksvalidering**: Automatisk kontroll mot SJ:s ersättningsregler
 - **Alkohol/tobak-detektion**: Identifierar och exkluderar icke-ersättningsbara produkter
 - **Ersättningsberäkning**: Beräknar korrekt ersättningsbelopp enligt gällande regler
 
 ### 📱 Användarvänligt Gränssnitt
+
 - **5-stegs flöde**: Intuitivt flöde från välkomst till slutgiltig ansökan
 - **Responsiv design**: Optimerad för både mobil och desktop
 - **Modal-baserad redigering**: Enkelt att redigera och granska kvittoinformation
@@ -43,6 +46,7 @@ Denna applikation hjälper resenärer att enkelt ansöka om ersättning för egn
 Applikationen använder en sofistikerad tvåstegsprocess som kombinerar olika Mistral AI-tjänster beroende på filtyp:
 
 #### 📸 **Bildbearbetning** (PNG, JPG, JPEG, GIF, WebP)
+
 ```typescript
 // Direktbearbetning med Mistral Vision API
 const result = await generateObject({
@@ -58,7 +62,8 @@ const result = await generateObject({
 })
 ```
 
-**Fördelar**: 
+**Fördelar**:
+
 - Direkt strukturerad extraktion från bild
 - Snabb bearbetning (5-8 sekunder)
 - Hög precision för visuella element
@@ -66,6 +71,7 @@ const result = await generateObject({
 #### 📄 **PDF-bearbetning** (Tvåstegsprocess)
 
 **Steg 1: OCR-textextrahering**
+
 ```typescript
 // Mistral OCR API för textextrahering
 const ocrResponse = await client.ocr.process({
@@ -78,6 +84,7 @@ const ocrResponse = await client.ocr.process({
 ```
 
 **Steg 2: Strukturerad dataextrahering**
+
 ```typescript
 // Använd extraherad text för strukturerad analys
 const result = await generateObject({
@@ -94,6 +101,7 @@ const result = await generateObject({
 ```
 
 **Fördelar**:
+
 - Hanterar komplexa PDF-layouter
 - Bevarar textstruktur och hierarki
 - Robust mot olika PDF-format
@@ -122,6 +130,7 @@ export const sjValidationSchema = z.object({
 ```
 
 **Fördelar**:
+
 - **Typsäkerhet**: Garanterar korrekt datastruktur
 - **Runtime-validering**: Fångar upp felaktiga AI-svar
 - **IntelliSense**: Fullständig IDE-support
@@ -155,7 +164,7 @@ VALIDERING:
 
 1. **Filuppladdning**: Frontend konverterar filer till base64 data URLs
 2. **Filtypsdetektering**: API identifierar bild vs PDF automatiskt
-3. **OCR-bearbetning**: 
+3. **OCR-bearbetning**:
    - Bilder → Direkt vision API
    - PDF → OCR API + strukturerad extraktion
 4. **Schema-validering**: Zod validerar AI-svaret mot definierat schema

@@ -98,7 +98,7 @@ export function ReceiptDetailModal({ receipts, uploadedFiles, isOpen, onClose }:
 
             {/* Store Name */}
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">"Kostnadsställe"</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">&quot;Kostnadsställe&quot;</h3>
               <p className="text-foreground">{selectedReceipt.name}</p>
             </div>
 

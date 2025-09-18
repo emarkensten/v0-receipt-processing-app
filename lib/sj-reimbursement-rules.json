@@ -1,0 +1,107 @@
+{
+  "operator": "SJ",
+  "version": "2025-09-18",
+  "currency": "SEK",
+  "regimes": {
+    "EU_2021_782_long_distance": {
+      "applies_if": { "distance_km_min": 150 },
+      "delay_compensation": [
+        { "delay_min_from": 60, "delay_min_to": 119, "refund_pct_of_ticket": 25 },
+        { "delay_min_from": 120, "delay_min_to": null, "refund_pct_of_ticket": 50 }
+      ],
+      "choices_when_expected_delay_>=60m": {
+        "options": [
+          "full_refund_untraveled_part_or_full_and_return_to_origin",
+          "continue_or_reroute_earliest_opportunity_no_extra_cost",
+          "reroute_later_date_at_passenger_convenience"
+        ]
+      },
+      "assistance_rights_from_60m": {
+        "meals_refreshments": {
+          "provided_in_proportion_to_waiting_time": true,
+          "requirement_practicable": true,
+          "reimbursement_if_SJ_did_NOT_provide": {
+            "policy": "reimburse_reasonable_out_of_pocket",
+            "caps_SEK": {
+              "60_to_119_min": { "amount": 100, "confidence": "low", "guess_basis": "aligned_with_Vy_and_Mälardalstrafik_practice" },
+              ">=120_min": { "amount": 200, "confidence": "low", "guess_basis": "aligned_with_Vy_and_Mälardalstrafik_practice" }
+            },
+            "notes": "Ingen ersättning om SJ faktiskt bjöd på mat/dryck."
+          }
+        },
+        "accommodation_if_overnight_needed": {
+          "hotel_or_equivalent": true,
+          "transport_between_station_and_accommodation": true,
+          "reimbursement_if_SJ_could_not_arrange": {
+            "policy": "reimburse_reasonable_costs_against_receipts",
+            "cap_SEK_per_night": { "amount": 1500, "confidence": "very_low", "guess_basis": "typical mid-market hotel cap used by Nordic operators; adjust to internal policy" }
+          }
+        }
+      },
+      "alternative_transport": {
+        "policy": "If rerouting by rail not practicable in time, reasonable other modes (e.g., bus/taxi) can be reimbursed when arranged/approved by SJ; otherwise claim may be assessed as 'reasonable costs'.",
+        "preapproval_recommended": true,
+        "receipt_required": true,
+        "cap_SEK": { "amount": 1200, "confidence": "very_low", "guess_basis": "heuristic taxi cap for intra-city or short intercity hop; adjust per internal SJ practice" }
+      },
+      "exclusions_and_limits": {
+        "extraordinary_circumstances_force_majeure": {
+          "may_limit": ["delay_compensation_pct", "not_assistance_rights"],
+          "examples": ["extreme_weather", "third_party_acts (people_on_tracks, cable_theft)"],
+          "note": "Rätten till omsorg (mat/logi) kvarstår när praktiskt genomförbart."
+        },
+        "no_comp_if_informed_before_purchase_or_passenger_fault": true,
+        "minimum_comp_threshold_eur": 4
+      },
+      "proof_and_process": {
+        "receipts_required_for_out_of_pocket": true,
+        "apply_channel": ["SJ web form/app", "EU common form acceptable"],
+        "payout_within_days": 30,
+        "submission_deadline_days": null,
+        "notes": "Be om kontant utbetalning om du inte vill ha värdebevis."
+      }
+    },
+    "SE_Law_2015_953_short_distance": {
+      "applies_if": { "distance_km_max": 149 },
+      "delay_price_reduction_tranche": [
+        { "delay_min_from": 20, "delay_min_to": 39, "refund_pct_of_ticket": 50 },
+        { "delay_min_from": 40, "delay_min_to": 59, "refund_pct_of_ticket": 75 },
+        { "delay_min_from": 60, "delay_min_to": null, "refund_pct_of_ticket": 100 }
+      ],
+      "right_to_other_transport_if_expected_delay_>_20m": {
+        "reimburse_reasonable_costs_to_final_destination": true,
+        "receipt_required": true,
+        "cap_SEK": { "amount": 1138, "confidence": "low", "guess_basis": "historical 1/40 prisbasbelopp praxis; update yearly" }
+      },
+      "assistance_rights": {
+        "meals_refreshments": {
+          "provided_when_practicable": true,
+          "reimbursement_if_not_provided": {
+            "caps_SEK": {
+              "20_to_59_min": { "amount": 50, "confidence": "very_low", "guess_basis": "forum recollection; use cautiously" },
+              ">=60_min": { "amount": 100, "confidence": "very_low", "guess_basis": "forum recollection; use cautiously" }
+            }
+          }
+        }
+      },
+      "proof_and_process": {
+        "receipts_required_for_out_of_pocket": true,
+        "payout_within_days": 30,
+        "submission_deadline_days": null
+      }
+    }
+  },
+  "global_rules": {
+    "no_double_compensation": "If SJ provided the care/service, you cannot claim reimbursement for the same item.",
+    "season_tickets": {
+      "eligible": true,
+      "method": "pro-rata/recurring delay basis per EU 2021/782",
+      "notes": "Operator-specific grids apply; ask SJ for current calculation."
+    },
+    "documentation_tips": [
+      "Save itemised receipts for food/hotel/taxi.",
+      "Screenshot delay info in SJ app or station boards.",
+      "Note train number, date/time, origin/destination."
+    ]
+  }
+}

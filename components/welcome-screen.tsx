@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Trees } from "lucide-react"
 import { ExpenseSelectionSheet } from "@/components/expense-selection-sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
