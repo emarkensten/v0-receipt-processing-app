@@ -1,3 +1,13 @@
+export interface ReceiptItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  selected: boolean
+  isAlcohol: boolean
+  isTobacco: boolean
+}
+
 export interface Receipt {
   id: string
   image_url: string
@@ -12,6 +22,8 @@ export interface Receipt {
   tax_rate: number | null
   tax_type: string | null
   language: string
+  items: ReceiptItem[]
+  selectedTotal: number
   metadata: {
     register_number: string | null
     cashier_name: string | null
