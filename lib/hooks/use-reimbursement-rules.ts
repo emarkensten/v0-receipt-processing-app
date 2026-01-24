@@ -27,23 +27,45 @@ export function useReimbursementRules() {
 
   const calculateReimbursement = (receipt: Receipt): ReimbursementCalculation => {
     const originalAmount = receipt.amount
-    let reimbursedAmount = originalAmount
-    let appliedRule = 'Standard ersättning'
     const exclusions: string[] = []
     const notes: string[] = []
 
-    // Check for alcohol/tobacco exclusions
-    if (receipt.sj_approval?.contains_alcohol) {
-      exclusions.push('Alkohol ersätts inte enligt SJ:s regler')
-      reimbursedAmount = Math.max(0, originalAmount * 0.7) // Estimate 30% alcohol cost
-      appliedRule = 'Partiell ersättning (alkohol exkluderat)'
+    // Calculate reimbursable amount from selected items only
+    const selectedItems = receipt.items?.filter(item => item.selected) || []
+    const excludedAlcohol = receipt.items?.filter(item => item.isAlcohol) || []
+    const excludedTobacco = receipt.items?.filter(item => item.isTobacco) || []
+
+    // Calculate base amount from selected items
+    let reimbursedAmount = selectedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
+
+    // If no items, fall back to total amount (for receipts without itemized data)
+    if (!receipt.items || receipt.items.length === 0) {
+      reimbursedAmount = originalAmount
+      // Check for alcohol/tobacco at receipt level
+      if (receipt.sj_approval?.contains_alcohol) {
+        exclusions.push('Alkohol ersätts inte enligt SJ:s regler')
+        reimbursedAmount = Math.max(0, originalAmount * 0.7)
+      }
+      if (receipt.sj_approval?.contains_tobacco) {
+        exclusions.push('Tobak ersätts inte enligt SJ:s regler')
+        reimbursedAmount = 0
+      }
+    } else {
+      // Add exclusion notes for alcohol/tobacco items
+      if (excludedAlcohol.length > 0) {
+        const alcoholTotal = excludedAlcohol.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        exclusions.push(`Alkohol exkluderat (${Math.round(alcoholTotal)} SEK)`)
+      }
+      if (excludedTobacco.length > 0) {
+        const tobaccoTotal = excludedTobacco.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        exclusions.push(`Tobak exkluderat (${Math.round(tobaccoTotal)} SEK)`)
+      }
     }
 
-    if (receipt.sj_approval?.contains_tobacco) {
-      exclusions.push('Tobak ersätts inte enligt SJ:s regler')
-      reimbursedAmount = 0
-      appliedRule = 'Ingen ersättning (tobak)'
-    }
+    let appliedRule = selectedItems.length > 0 ? 'Baserat på valda artiklar' : 'Standard ersättning'
 
     // Apply category-specific rules based on simulation settings
     switch (receipt.category) {
@@ -77,10 +99,12 @@ export function useReimbursementRules() {
           }
         }
 
-        if (originalAmount <= mealLimit && !receipt.sj_approval?.contains_alcohol && !receipt.sj_approval?.contains_tobacco) {
+        if (!receipt.sj_approval?.contains_alcohol && !receipt.sj_approval?.contains_tobacco) {
           appliedRule = `Måltidsersättning (${settings.isLongDistance ? 'EU 2021/782' : 'SE 2015:953'})`
           notes.push(`Ersättning för rimliga måltidskostnader vid ${settings.delayMinutes}+ min försening`)
-        } else if (originalAmount > mealLimit) {
+        }
+        // Apply meal limit to selected items sum
+        if (reimbursedAmount > mealLimit) {
           reimbursedAmount = mealLimit
           appliedRule = `Måltidsersättning (begränsad till ${mealLimit} SEK)`
           notes.push(`Ersättning begränsad enligt ${settings.isLongDistance ? 'EU' : 'svenska'} regler`)
@@ -105,10 +129,10 @@ export function useReimbursementRules() {
         }
 
         const accommodationLimit = 1500
-        if (originalAmount <= accommodationLimit) {
-          appliedRule = 'Logi enligt EU 2021/782'
-          notes.push('Ersättning för rimliga logikostnader vid övernattning')
-        } else {
+        appliedRule = 'Logi enligt EU 2021/782'
+        notes.push('Ersättning för rimliga logikostnader vid övernattning')
+        // Apply accommodation limit to selected items sum
+        if (reimbursedAmount > accommodationLimit) {
           reimbursedAmount = accommodationLimit
           appliedRule = `Logiersättning (begränsad till ${accommodationLimit} SEK/natt)`
           notes.push('Ersättning begränsad enligt EU-regler för logi')
@@ -136,10 +160,10 @@ export function useReimbursementRules() {
         }
 
         const transportLimit = settings.simulationMode && !settings.isLongDistance ? 1138 : 1200
-        if (originalAmount <= transportLimit) {
-          appliedRule = `Alternativ transport enligt ${settings.isLongDistance ? 'EU 2021/782' : 'SE 2015:953'}`
-          notes.push('Ersättning för alternativ transport vid förseningar')
-        } else {
+        appliedRule = `Alternativ transport enligt ${settings.isLongDistance ? 'EU 2021/782' : 'SE 2015:953'}`
+        notes.push('Ersättning för alternativ transport vid förseningar')
+        // Apply transport limit to selected items sum
+        if (reimbursedAmount > transportLimit) {
           reimbursedAmount = transportLimit
           appliedRule = `Transportersättning (begränsad till ${transportLimit} SEK)`
           notes.push('Ersättning begränsad enligt gällande regler')
