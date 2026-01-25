@@ -63,7 +63,7 @@ export default function HomePage() {
 
   // Handle submitting expenses
   const handleSubmitExpenses = useCallback(() => {
-    alert("Ersattningsansokan skickad till SJ Kundtjanst!")
+    alert("Ersättningsansökan skickad till SJ Kundtjänst!")
     setCurrentState("upload")
     setReceipts([])
   }, [])

@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "SJ Egna Utlägg - Ersättning för resor",
+  title: "Ersättning vid försening",
   description: "Ladda upp kvitton och få ersättning för dina SJ-resor med AI-powered kvittobearbetning",
   generator: "v0.app",
 }

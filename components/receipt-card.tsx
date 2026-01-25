@@ -122,7 +122,7 @@ export function ReceiptCard({ receipt, onItemToggle, onImageClick }: ReceiptCard
             {hasWarnings && (
               <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-600 dark:text-amber-400">
                 <AlertTriangle className="h-3.5 w-3.5" />
-                <span>Innehaller ej ersattningsbara artiklar</span>
+                <span>Innehåller ej ersättningsbara artiklar</span>
               </div>
             )}
           </div>
@@ -137,7 +137,7 @@ export function ReceiptCard({ receipt, onItemToggle, onImageClick }: ReceiptCard
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center justify-between w-full text-sm font-medium text-foreground mb-3 min-h-[44px] -my-2 py-2"
           >
-            <span>Valj dina rader ({selectedItems.length} av {receipt.items.length})</span>
+            <span>Välj dina rader ({selectedItems.length} av {receipt.items.length})</span>
             {isExpanded ? (
               <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
@@ -182,7 +182,7 @@ export function ReceiptCard({ receipt, onItemToggle, onImageClick }: ReceiptCard
                     </div>
                     {(item.isAlcohol || item.isTobacco) && (
                       <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
-                        {item.isAlcohol ? "Alkohol ersatts ej" : "Tobak ersatts ej"}
+                        {item.isAlcohol ? "Alkohol ersätts ej" : "Tobak ersätts ej"}
                       </p>
                     )}
                   </div>
@@ -204,7 +204,7 @@ export function ReceiptCard({ receipt, onItemToggle, onImageClick }: ReceiptCard
         <div className="bg-muted/30 border-t border-border p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Din ersattning</p>
+              <p className="text-sm text-muted-foreground">Din ersättning</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 (av {formatCurrency(receipt.amount)} totalt)
               </p>

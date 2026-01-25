@@ -198,9 +198,9 @@ export function UploadPage({ onFilesProcessed }: UploadPageProps) {
 
   const getStatusText = (status: FileStatus) => {
     switch (status) {
-      case "waiting": return "Vantar..."
-      case "preprocessing": return "Forbehandlar..."
-      case "processing": return "Laser kvitto..."
+      case "waiting": return "Väntar..."
+      case "preprocessing": return "Förbehandlar..."
+      case "processing": return "Läser kvitto..."
       case "done": return "Klar"
       case "error": return "Fel"
     }
@@ -216,8 +216,7 @@ export function UploadPage({ onFilesProcessed }: UploadPageProps) {
               <Receipt className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="font-semibold text-foreground">SJ Ersattning</h1>
-              <p className="text-xs text-muted-foreground">Ladda upp dina kvitton</p>
+              <h1 className="font-semibold text-foreground">Ersättning vid försening</h1>
             </div>
           </div>
         </div>
@@ -271,12 +270,12 @@ export function UploadPage({ onFilesProcessed }: UploadPageProps) {
 
             {/* Text */}
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              {isDragActive ? "Slapp filerna har!" : "Ladda upp kvitton"}
+              {isDragActive ? "Släpp filerna här!" : "Ladda upp kvitton"}
             </h2>
             <p className="text-sm text-muted-foreground mb-5 max-w-xs">
               {isDragActive
                 ? "Vi tar emot dina filer"
-                : "Dra och slapp filer, eller klicka for att valja. PNG, JPG, HEIC, PDF."}
+                : "Dra och släpp filer, eller klicka för att välja. PNG, JPG, HEIC, PDF."}
             </p>
 
             {/* Button */}
@@ -291,7 +290,7 @@ export function UploadPage({ onFilesProcessed }: UploadPageProps) {
                 }}
               >
                 <Camera className="h-5 w-5 mr-2" />
-                Valj filer
+                Välj filer
               </Button>
             )}
           </CardContent>
@@ -382,7 +381,7 @@ export function UploadPage({ onFilesProcessed }: UploadPageProps) {
               className="w-full min-h-[52px] text-base font-medium"
               onClick={handleContinue}
             >
-              Fortsatt till granskning
+              Fortsätt till granskning
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
             <p className="text-xs text-center text-muted-foreground mt-3">

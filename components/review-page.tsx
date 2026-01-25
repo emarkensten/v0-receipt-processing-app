@@ -68,7 +68,7 @@ export function ReviewPage({
             <div className="flex-1">
               <h1 className="font-semibold text-foreground">Granska kvitton</h1>
               <p className="text-xs text-muted-foreground">
-                Valj vilka artiklar du vill fa ersattning for
+                Välj vilka artiklar du vill få ersättning för
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export function ReviewPage({
           onClick={onAddMore}
         >
           <Plus className="h-5 w-5 mr-2" />
-          Lagg till fler kvitton
+          Lägg till fler kvitton
         </Button>
       </main>
 
@@ -112,7 +112,7 @@ export function ReviewPage({
               <div className="h-4 w-px bg-border" />
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Banknote className="h-4 w-4" />
-                <span>Utlagg: {formatCurrency(totalExpenses)}</span>
+                <span>Utlägg: {formatCurrency(totalExpenses)}</span>
               </div>
             </div>
           </div>
@@ -120,7 +120,7 @@ export function ReviewPage({
           {/* Total and continue */}
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <p className="text-sm text-muted-foreground">Total ersattning</p>
+              <p className="text-sm text-muted-foreground">Total ersättning</p>
               <p className="text-2xl font-bold text-primary tabular-nums">
                 {formatCurrency(totalReimbursement)}
               </p>
@@ -131,7 +131,7 @@ export function ReviewPage({
               onClick={onContinue}
               disabled={totalReimbursement === 0}
             >
-              Fortsatt
+              Fortsätt
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </div>
