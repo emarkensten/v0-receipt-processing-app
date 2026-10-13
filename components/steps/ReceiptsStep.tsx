@@ -123,9 +123,9 @@ export function ReceiptsStep({ receipts, add, addExamples, retry, remove, toggle
               <Typography variant="h2">Det här kan du få tillbaka</Typography>
               <List component="ul">
                 {[
-                  { icon: <Bistro />, primary: "Mat och dryck", secondary: "När du väntat en timme eller mer" },
-                  { icon: <Bed />, primary: "Hotell", secondary: "Om du inte kom fram samma dag" },
-                  { icon: <Taxi />, primary: "Taxi eller buss", secondary: "Om tåget inte gick och SJ inte ordnade något" },
+                  { icon: <Bistro />, primary: "Mat och dryck", secondary: "Medan du väntar på tåget" },
+                  { icon: <Bed />, primary: "Hotell", secondary: "Om du inte kommer fram samma dag" },
+                  { icon: <Taxi />, primary: "Taxi eller buss", secondary: "Om SJ inte ordnar ersättningstrafik" },
                 ].map((row) => (
                   <ListItem key={row.primary}>
                     <ListItemIcon iconPosition="start">{row.icon}</ListItemIcon>

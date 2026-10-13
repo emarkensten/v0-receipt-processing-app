@@ -31,6 +31,19 @@ export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit
   return (
     <PageLayout
       title="Din ersättning"
+      heading={
+        nothing ? (
+          "Du kan tyvärr inte få något tillbaka"
+        ) : (
+          <>
+            <span aria-hidden>Du kan få {formatKr(amount)}</span>
+            <Box component="span" sx={visuallyHidden}>
+              Du kan få {formatKr(totalPayout)}
+            </Box>
+          </>
+        )
+      }
+      intro={`Av ${formatKr(totalSpent)} som du lagt ut, vid ${trip.distance === "long" ? "en resa på 15 mil eller mer" : "en kortare resa"} och ${DELAY_LABEL[trip.delay]} försening.`}
       onBack={onBack}
       bottomBar={
         nothing ? (
@@ -45,22 +58,6 @@ export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit
         )
       }
     >
-      <Stack useFlexGap spacing={1}>
-        <Typography variant="bodyRegular" color="text.secondary">
-          {nothing ? "Du kan tyvärr inte få något tillbaka" : "Du kan få tillbaka"}
-        </Typography>
-        <Typography variant="largeTitleEmphasized" component="p" sx={{ fontVariantNumeric: "tabular-nums" }}>
-          <span aria-hidden>{formatKr(amount)}</span>
-          <Box component="span" sx={visuallyHidden}>
-            {formatKr(totalPayout)}
-          </Box>
-        </Typography>
-        <Typography variant="bodyRegular" color="text.secondary">
-          av {formatKr(totalSpent)} som du lagt ut, vid {trip.distance === "long" ? "en resa på 15 mil eller mer" : "en kortare resa"} och{" "}
-          {DELAY_LABEL[trip.delay]} försening.
-        </Typography>
-      </Stack>
-
       {categories.length > 0 && (
         <Stack useFlexGap spacing={1}>
           <Typography variant="h2">Så har vi räknat</Typography>
@@ -72,7 +69,7 @@ export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit
                   <ListItemIcon iconPosition="start">{ICON[c.category]}</ListItemIcon>
                   <ListItemText
                     primary={CATEGORY_LABEL[c.category]}
-                    secondary={c.reason ?? (c.payout < c.claimed ? `Högst ${formatKr(c.cap)} för din försening` : `Hela beloppet ersätts`)}
+                    secondary={c.reason ?? (c.payout < c.claimed ? `Högst ${formatKr(c.cap)} vid din försening` : undefined)}
                     primaryMeta={formatKr(c.payout)}
                     secondaryMeta={c.payout < c.claimed ? `av ${formatKr(c.claimed)}` : undefined}
                   />

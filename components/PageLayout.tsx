@@ -10,6 +10,8 @@ import Typography from "@sj-ab/component-library.ui.typography"
 
 type Props = {
   title: string
+  /** Visas i stället för title som sidans h1. AppBar visar fortfarande title. */
+  heading?: ReactNode
   intro?: ReactNode
   onBack?: () => void
   /** Huvudhandlingen, fast i nederkant. */
@@ -18,7 +20,7 @@ type Props = {
 }
 
 /** SJ:s layoutregioner: App Bar, Body och en fast Bottom Bar. Innehållet står direkt på sidan. */
-export function PageLayout({ title, intro, onBack, bottomBar, children }: Props) {
+export function PageLayout({ title, heading, intro, onBack, bottomBar, children }: Props) {
   const headingRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -36,7 +38,7 @@ export function PageLayout({ title, intro, onBack, bottomBar, children }: Props)
         <Stack useFlexGap spacing={4}>
           <Stack useFlexGap spacing={1}>
             <Typography ref={headingRef} variant="h1">
-              {title}
+              {heading ?? title}
             </Typography>
             {intro && (
               <Typography variant="bodyRegular" color="text.secondary">

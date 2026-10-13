@@ -69,22 +69,22 @@ function rule(category: Category, trip: Trip): { cap: number; reason?: string } 
   const long = trip.distance === "long"
   if (trip.sjProvided[category]) {
     const what = { Mat: "mat och dryck", Boende: "hotell", Transport: "annan transport" }[category]
-    return { cap: 0, reason: `SJ ordnade ${what}, så det ersätts inte en gång till.` }
+    return { cap: 0, reason: `SJ ordnade ${what}, så det ersätts inte en gång till` }
   }
   switch (category) {
     case "Mat":
       if (long) {
-        if (trip.delay === "20-59") return { cap: 0, reason: "Mat ersätts från 60 minuters försening på längre resor." }
+        if (trip.delay === "20-59") return { cap: 0, reason: "Mat ersätts från 60 minuters försening på längre resor" }
         return { cap: trip.delay === "120+" ? 200 : 100 }
       }
       return { cap: trip.delay === "20-59" ? 50 : 100 }
     case "Boende":
-      if (!long) return { cap: 0, reason: "Hotell ersätts bara på resor som är 15 mil eller längre." }
-      if (trip.delay !== "120+") return { cap: 0, reason: "Hotell ersätts när förseningen är minst 2 timmar." }
+      if (!long) return { cap: 0, reason: "Hotell ersätts bara på resor som är 15 mil eller längre" }
+      if (trip.delay !== "120+") return { cap: 0, reason: "Hotell ersätts när förseningen är minst 2 timmar" }
       return { cap: 1500 }
     case "Transport":
       if (long && trip.delay === "20-59") {
-        return { cap: 0, reason: "Annan transport ersätts från 60 minuters försening på längre resor." }
+        return { cap: 0, reason: "Annan transport ersätts från 60 minuters försening på längre resor" }
       }
       return { cap: long ? 1200 : 1138 }
   }
