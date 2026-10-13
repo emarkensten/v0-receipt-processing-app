@@ -1,40 +1,29 @@
-import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
+import type { ReactNode } from "react"
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter"
 import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import "./globals.css"
+import { Providers } from "./providers"
 
 export const metadata: Metadata = {
   title: "Ersättning vid försening",
-  description: "Ladda upp kvitton och få ersättning för dina SJ-resor med AI-powered kvittobearbetning",
-  generator: "v0.app",
+  description: "Fotografera kvittona från en försenad resa och se direkt vad du kan få tillbaka.",
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#00A651" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
-  ],
+  viewportFit: "cover",
+  themeColor: "#ffffff",
+  colorScheme: "light dark",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="sv" suppressHydrationWarning>
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Suspense fallback={null}>{children}</Suspense>
-        </ThemeProvider>
+    <html lang="sv">
+      <body>
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <Providers>{children}</Providers>
+        </AppRouterCacheProvider>
         <Analytics />
       </body>
     </html>
