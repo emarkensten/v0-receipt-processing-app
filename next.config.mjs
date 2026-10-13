@@ -1,13 +1,15 @@
-/** @type {import('next').NextConfig} */
+/** @type {import("next").NextConfig} */
+
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
+  eslint: { ignoreDuringBuilds: true },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      include: /node_modules\/@sj-ab/,
+      type: "asset/resource",
+      generator: { filename: "static/media/[name].[hash][ext]" },
+    })
+    return config
   },
 }
 
