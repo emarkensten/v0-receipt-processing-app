@@ -63,6 +63,7 @@ export function App() {
           <SummaryStep
             calculation={calculation}
             trip={trip}
+            receipts={receipts.receipts}
             onBack={() => go("trip")}
             onAddReceipts={() => go("receipts")}
             onSubmit={() => go("done")}
@@ -73,6 +74,7 @@ export function App() {
         "done",
         <DoneStep
           amount={calculation?.totalPayout ?? 0}
+          receipts={receipts.receipts}
           onDone={() => {
             receipts.reset()
             setTrip(null)

@@ -14,3 +14,8 @@ export function formatDate(iso?: string | null): string | undefined {
   const date = new Date(`${iso}T12:00:00`)
   return Number.isNaN(date.getTime()) ? undefined : dateFormat.format(date)
 }
+
+/** "Mat och dryck, 12 oktober" */
+export function receiptMeta(receipt: Pick<Receipt, "category" | "date">): string {
+  return [receipt.category && CATEGORY_LABEL[receipt.category], formatDate(receipt.date)].filter(Boolean).join(", ")
+}

@@ -6,13 +6,14 @@ import { DoneFilledChecked } from "@sj-ab/component-library.ui.icons"
 import FlowButton from "@sj-ab/component-library.ui.flow-button"
 import Stack from "@sj-ab/component-library.ui.stack"
 import Typography from "@sj-ab/component-library.ui.typography"
-import { formatKr } from "@/lib/reimbursement"
+import { SubmittedReceipts } from "@/components/SubmittedReceipts"
+import { formatKr, type Receipt } from "@/lib/reimbursement"
 
-type Props = { amount: number; onDone: () => void }
+type Props = { amount: number; receipts: Receipt[]; onDone: () => void }
 
 /** Bekräftelsen svarar på "vad händer nu?" och avslutar flödet. */
-export function DoneStep({ amount, onDone }: Props) {
-  // MotionConfig i page.tsx stänger av rörelsen för den som valt minskad rörelse.
+export function DoneStep({ amount, receipts, onDone }: Props) {
+  // MotionConfig i App.tsx stänger av rörelsen för den som valt minskad rörelse.
   const enter = (delay: number) =>
     ({
       initial: { opacity: 0, y: 12 },
@@ -40,6 +41,9 @@ export function DoneStep({ amount, onDone }: Props) {
           <FlowButton fullWidth onClick={onDone}>
             Klar
           </FlowButton>
+        </motion.div>
+        <motion.div {...enter(0.45)} style={{ width: "100%", textAlign: "left" }}>
+          <SubmittedReceipts id="done-receipts" title="Det här skickade du in" receipts={receipts} />
         </motion.div>
       </Stack>
     </Box>

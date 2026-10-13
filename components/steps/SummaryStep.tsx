@@ -15,15 +15,16 @@ import ListItemText from "@sj-ab/component-library.ui.list-item-text"
 import Stack from "@sj-ab/component-library.ui.stack"
 import Typography from "@sj-ab/component-library.ui.typography"
 import { PageLayout } from "@/components/PageLayout"
+import { SubmittedReceipts } from "@/components/SubmittedReceipts"
 import { CATEGORY_LABEL } from "@/lib/labels"
-import { formatKr, type Calculation, type Category, type Trip } from "@/lib/reimbursement"
+import { formatKr, type Calculation, type Category, type Receipt, type Trip } from "@/lib/reimbursement"
 
 const ICON: Record<Category, React.ReactNode> = { Mat: <Bistro />, Boende: <Bed />, Transport: <Taxi /> }
 const DELAY_LABEL: Record<Trip["delay"], string> = { "20-59": "20–59 minuter", "60-119": "1–2 timmar", "120+": "mer än 2 timmar" }
 
-type Props = { calculation: Calculation; trip: Trip; onBack: () => void; onAddReceipts: () => void; onSubmit: () => void }
+type Props = { calculation: Calculation; trip: Trip; receipts: Receipt[]; onBack: () => void; onAddReceipts: () => void; onSubmit: () => void }
 
-export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit }: Props) {
+export function SummaryStep({ calculation, trip, receipts, onBack, onAddReceipts, onSubmit }: Props) {
   const { categories, excluded, totalSpent, totalPayout } = calculation
   const amount = useCountUp(totalPayout)
   const nothing = totalPayout === 0
@@ -97,6 +98,8 @@ export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit
           </List>
         </Stack>
       )}
+
+      <SubmittedReceipts id="summary-receipts" title="Dina kvitton" receipts={receipts} />
 
       <InformationCard
         title="Det här är en uppskattning"

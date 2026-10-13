@@ -19,7 +19,7 @@ import TextButton from "@sj-ab/component-library.ui.text-button"
 import Typography from "@sj-ab/component-library.ui.typography"
 import { PageLayout } from "@/components/PageLayout"
 import { ReceiptSheet } from "@/components/ReceiptSheet"
-import { CATEGORY_LABEL, formatDate } from "@/lib/labels"
+import { receiptMeta } from "@/lib/labels"
 import { BLOCKED_KINDS, formatKr, type Receipt } from "@/lib/reimbursement"
 import type { useReceipts } from "@/lib/use-receipts"
 
@@ -237,7 +237,7 @@ function ReceiptRow({ receipt, onOpen, onRetry, onRemove }: RowProps) {
   }
 
   const blocked = receipt.items.filter((i) => BLOCKED_KINDS[i.kind]).length
-  const secondary = [receipt.category && CATEGORY_LABEL[receipt.category], formatDate(receipt.date)].filter(Boolean).join(", ")
+  const secondary = receiptMeta(receipt)
 
   return (
     <ListItemButton disableLiSemantics onClick={onOpen}>

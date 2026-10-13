@@ -10,7 +10,7 @@ import Sheet from "@sj-ab/component-library.ui.sheet"
 import Stack from "@sj-ab/component-library.ui.stack"
 import TextButton from "@sj-ab/component-library.ui.text-button"
 import Typography from "@sj-ab/component-library.ui.typography"
-import { CATEGORY_LABEL, formatDate } from "@/lib/labels"
+import { receiptMeta } from "@/lib/labels"
 import { BLOCKED_KINDS, formatKr, type Receipt } from "@/lib/reimbursement"
 import { ReceiptViewer } from "./ReceiptViewer"
 
@@ -30,7 +30,7 @@ export function ReceiptSheet({ receipt, onClose, onToggleItem, onRemove }: Props
     onClose()
   }
   const title = receipt?.store ?? "Kvitto"
-  const meta = [receipt?.category && CATEGORY_LABEL[receipt.category], formatDate(receipt?.date)].filter(Boolean).join(", ")
+  const meta = receipt ? receiptMeta(receipt) : ""
 
   return (
     <Sheet
