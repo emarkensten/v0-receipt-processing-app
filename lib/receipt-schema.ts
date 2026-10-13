@@ -24,9 +24,10 @@ export const extractedReceiptSchema = z.object({
       }),
     )
     .describe("Kvittots rader. Tom lista om raderna inte går att läsa"),
+  contains_alcohol_or_tobacco: z.boolean().describe("true om kvittot har alkohol eller tobak, även om raderna inte går att läsa"),
   summary: z
     .string()
-    .describe("En mening på svenska i du-form om vad kvittot gäller och om något sticker ut, till exempel alkohol. Inga tankstreck."),
+    .describe("Högst 20 ord på svenska i du-form: vad kvittot gäller och vad som inte ersätts, till exempel alkohol eller dricks. Räkna inte upp alla varor. Inga tankstreck."),
 })
 
 export type ExtractedReceipt = z.infer<typeof extractedReceiptSchema>

@@ -20,7 +20,7 @@ Klassa varje rad:
 - transport: taxi, buss, hyrbil, parkering i samband med resan
 - ovrigt: tidningar, kläder, presenter och annat som inte hör till resan
 
-Välj kvittots kategori efter vad det mesta gäller. Skriv sammanfattningen kort och vänligt, som SJ: du-form, aktiv röst, inga tankstreck.`
+Välj kvittots kategori efter vad det mesta gäller. Skriv sammanfattningen kort och vänligt, som SJ: du-form, aktiv röst, inga tankstreck. Nämn varor med namnet som står på kvittot och beskriv dem inte (skriv inte till exempel "starköl").`
 
 const client = new Anthropic()
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { Box, GlobalStyles } from "@mui/material"
 import AppBar from "@sj-ab/component-library.ui.app-bar"
 import BottomBarContainer from "@sj-ab/component-library.ui.bottom-bar-container"
@@ -46,14 +47,17 @@ export function PageLayout({ title, intro, onBack, bottomBar, children }: Props)
           {children}
         </Stack>
       </Box>
-      {bottomBar && (
+      {/* Portal till body: sidbytets transform får inte bli den fasta bottenytans referens. */}
+      {bottomBar &&
+        createPortal(
         <>
           <GlobalStyles styles={(theme) => ({ html: { scrollPaddingBottom: theme.spacing(18) } })} />
           <BottomBarContainer position="fixed" elevated sx={{ zIndex: "appBar", bgcolor: "background.default", px: 2, pt: 2, pb: "max(16px, env(safe-area-inset-bottom))" }}>
             <Box sx={{ maxWidth: 600, mx: "auto" }}>{bottomBar}</Box>
           </BottomBarContainer>
-        </>
-      )}
+        </>,
+          document.body,
+        )}
     </>
   )
 }

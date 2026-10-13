@@ -39,11 +39,18 @@ export function ReceiptsStep({ receipts, add, addExamples, retry, remove, toggle
   const cameraInput = useRef<HTMLInputElement>(null)
   const fileInput = useRef<HTMLInputElement>(null)
   const [openId, setOpenId] = useState<string | null>(null)
+  const [rejected, setRejected] = useState<string | null>(null)
   const { getRootProps, isDragActive } = useDropzone({
-    onDrop: (files) => files.length && add(files),
+    onDrop: (files) => {
+      setRejected(null)
+      if (files.length) add(files)
+    },
+    onDropRejected: (rejections) =>
+      setRejected(`${rejections.map((r) => r.file.name).join(", ")} går inte att läsa. Använd en bild eller en PDF.`),
     noClick: true,
     noKeyboard: true,
-    accept: { "image/*": [".heic", ".heif"], "application/pdf": [] },
+    // Filer från till exempel Google Drive saknar ibland MIME-typ, så filändelserna måste också räknas upp.
+    accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic", ".heif"], "application/pdf": [".pdf"] },
   })
 
   const onPick = (event: ChangeEvent<HTMLInputElement>) => {
@@ -81,6 +88,15 @@ export function ReceiptsStep({ receipts, add, addExamples, retry, remove, toggle
           ) : undefined
         }
       >
+        {rejected && (
+          <Box role="alert" sx={{ display: "flex", alignItems: "flex-start", gap: 0.5, color: "error.main" }}>
+            <WarningSmall aria-hidden />
+            <Typography variant="subheadlineRegular" color="inherit">
+              {rejected}
+            </Typography>
+          </Box>
+        )}
+
         {!hasReceipts && (
           <>
             <Stack useFlexGap spacing={2}>

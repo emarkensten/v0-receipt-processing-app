@@ -33,6 +33,7 @@ export interface Receipt {
   total?: number
   category?: ExtractedReceipt["category"]
   summary?: string
+  hasAlcoholOrTobacco?: boolean
   items: ReceiptItem[]
 }
 
@@ -114,8 +115,15 @@ export function calculate(receipts: Receipt[], trip: Trip): Calculation {
     if (receipt.status !== "done") continue
     totalSpent += receipt.total ?? 0
 
-    if (receipt.items.length === 0 && receipt.category && receipt.category !== "Övrigt") {
-      claimed[receipt.category] += receipt.total ?? 0
+    if (receipt.items.length === 0) {
+      // Utan läsbara rader går det inte att räkna bort alkohol eller tobak, så då ersätts inte kvittot alls.
+      const reason = receipt.hasAlcoholOrTobacco
+        ? "Raderna gick inte att läsa och kvittot har alkohol eller tobak"
+        : receipt.category === "Övrigt" || !receipt.category
+          ? "Hör inte till resan"
+          : undefined
+      if (reason) excluded.push({ name: receipt.store ?? receipt.fileName, amount: receipt.total ?? 0, reason })
+      else claimed[receipt.category as Category] += receipt.total ?? 0
       continue
     }
     for (const item of receipt.items) {

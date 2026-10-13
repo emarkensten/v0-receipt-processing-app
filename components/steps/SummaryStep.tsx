@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { animate, useReducedMotion } from "motion/react"
 import { Box } from "@mui/material"
+import { visuallyHidden } from "@mui/utils"
 import Divider from "@sj-ab/component-library.ui.divider"
 import FlowButton from "@sj-ab/component-library.ui.flow-button"
 import { Bed, Bistro, Taxi } from "@sj-ab/component-library.ui.icons"
@@ -14,15 +15,15 @@ import ListItemText from "@sj-ab/component-library.ui.list-item-text"
 import Stack from "@sj-ab/component-library.ui.stack"
 import Typography from "@sj-ab/component-library.ui.typography"
 import { PageLayout } from "@/components/PageLayout"
+import { CATEGORY_LABEL } from "@/lib/labels"
 import { formatKr, type Calculation, type Category, type Trip } from "@/lib/reimbursement"
 
 const ICON: Record<Category, React.ReactNode> = { Mat: <Bistro />, Boende: <Bed />, Transport: <Taxi /> }
-const LABEL: Record<Category, string> = { Mat: "Mat och dryck", Boende: "Hotell", Transport: "Taxi och buss" }
 const DELAY_LABEL: Record<Trip["delay"], string> = { "20-59": "20–59 minuter", "60-119": "1–2 timmar", "120+": "mer än 2 timmar" }
 
-type Props = { calculation: Calculation; trip: Trip; onBack: () => void; onSubmit: () => void }
+type Props = { calculation: Calculation; trip: Trip; onBack: () => void; onAddReceipts: () => void; onSubmit: () => void }
 
-export function SummaryStep({ calculation, trip, onBack, onSubmit }: Props) {
+export function SummaryStep({ calculation, trip, onBack, onAddReceipts, onSubmit }: Props) {
   const { categories, excluded, totalSpent, totalPayout } = calculation
   const amount = useCountUp(totalPayout)
   const nothing = totalPayout === 0
@@ -32,17 +33,27 @@ export function SummaryStep({ calculation, trip, onBack, onSubmit }: Props) {
       title="Din ersättning"
       onBack={onBack}
       bottomBar={
-        <FlowButton fullWidth onClick={nothing ? onBack : onSubmit}>
-          {nothing ? "Ändra svaren om resan" : "Skicka ansökan"}
-        </FlowButton>
+        nothing ? (
+          // Utan ersättningsbara kvitton hjälper det inte att ändra svaren om resan.
+          <FlowButton fullWidth onClick={categories.length ? onBack : onAddReceipts}>
+            {categories.length ? "Ändra svaren om resan" : "Lägg till andra kvitton"}
+          </FlowButton>
+        ) : (
+          <FlowButton fullWidth onClick={onSubmit}>
+            Skicka ansökan
+          </FlowButton>
+        )
       }
     >
       <Stack useFlexGap spacing={1}>
         <Typography variant="bodyRegular" color="text.secondary">
           {nothing ? "Du kan tyvärr inte få något tillbaka" : "Du kan få tillbaka"}
         </Typography>
-        <Typography variant="largeTitleEmphasized" component="p" aria-live="polite" sx={{ fontVariantNumeric: "tabular-nums" }}>
-          {formatKr(amount)}
+        <Typography variant="largeTitleEmphasized" component="p" sx={{ fontVariantNumeric: "tabular-nums" }}>
+          <span aria-hidden>{formatKr(amount)}</span>
+          <Box component="span" sx={visuallyHidden}>
+            {formatKr(totalPayout)}
+          </Box>
         </Typography>
         <Typography variant="bodyRegular" color="text.secondary">
           av {formatKr(totalSpent)} som du lagt ut, vid {trip.distance === "long" ? "en resa på 15 mil eller mer" : "en kortare resa"} och{" "}
@@ -60,7 +71,7 @@ export function SummaryStep({ calculation, trip, onBack, onSubmit }: Props) {
                 <ListItem component="div">
                   <ListItemIcon iconPosition="start">{ICON[c.category]}</ListItemIcon>
                   <ListItemText
-                    primary={LABEL[c.category]}
+                    primary={CATEGORY_LABEL[c.category]}
                     secondary={c.reason ?? (c.payout < c.claimed ? `Högst ${formatKr(c.cap)} för din försening` : `Hela beloppet ersätts`)}
                     primaryMeta={formatKr(c.payout)}
                     secondaryMeta={c.payout < c.claimed ? `av ${formatKr(c.claimed)}` : undefined}

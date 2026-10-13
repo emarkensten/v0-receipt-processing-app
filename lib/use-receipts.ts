@@ -4,6 +4,24 @@ import { useCallback, useRef, useState } from "react"
 import type { ExtractedReceipt } from "./receipt-schema"
 import { toReceiptItems, type Receipt } from "./reimbursement"
 
+const TYPE_BY_EXTENSION: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  heic: "image/heic",
+  heif: "image/heif",
+  pdf: "application/pdf",
+}
+
+/** Ger filen en MIME-typ efter filändelsen när webbläsaren inte satt någon. */
+function withType(file: File): File {
+  if (file.type) return file
+  const type = TYPE_BY_EXTENSION[file.name.split(".").pop()?.toLowerCase() ?? ""]
+  return type ? new File([file], file.name, { type, lastModified: file.lastModified }) : file
+}
+
 async function toDataUrl(file: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -25,6 +43,9 @@ async function prepare(file: File): Promise<File> {
   }
 }
 
+/** Vercel tar emot högst 4,5 MB per anrop, och base64 gör filen en tredjedel större. */
+const MAX_BYTES = 3 * 1024 * 1024
+
 export function useReceipts() {
   const [receipts, setReceipts] = useState<Receipt[]>([])
 
@@ -37,8 +58,16 @@ export function useReceipts() {
       update(id, { status: "reading", error: undefined })
       try {
         const prepared = await prepare(file)
+        if (prepared.size > MAX_BYTES) throw new Error("Filen är för stor. Prova en bild eller en PDF under 3 MB.")
         if (prepared !== file && prepared.type.startsWith("image/")) {
-          update(id, { previewUrl: URL.createObjectURL(prepared) })
+          const previewUrl = URL.createObjectURL(prepared)
+          setReceipts((all) =>
+            all.map((r) => {
+              if (r.id !== id) return r
+              if (r.previewUrl) URL.revokeObjectURL(r.previewUrl)
+              return { ...r, previewUrl }
+            }),
+          )
         }
         const response = await fetch("/api/process-receipt", {
           method: "POST",
@@ -57,6 +86,7 @@ export function useReceipts() {
           total: r.total_amount,
           category: r.category,
           summary: r.summary,
+          hasAlcoholOrTobacco: r.contains_alcohol_or_tobacco,
           items: toReceiptItems(r),
         })
       } catch (error) {
@@ -71,7 +101,7 @@ export function useReceipts() {
 
   const add = useCallback(
     (newFiles: File[]) => {
-      const added = newFiles.map((file) => ({
+      const added = newFiles.map(withType).map((file) => ({
         id: crypto.randomUUID(),
         file,
         receipt: {
@@ -108,7 +138,11 @@ export function useReceipts() {
 
   const remove = useCallback((id: string) => {
     files.current.delete(id)
-    setReceipts((all) => all.filter((r) => r.id !== id))
+    setReceipts((all) => {
+      const removed = all.find((r) => r.id === id)
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl)
+      return all.filter((r) => r.id !== id)
+    })
   }, [])
 
   const toggleItem = useCallback((receiptId: string, itemId: string, selected: boolean) => {
@@ -121,7 +155,10 @@ export function useReceipts() {
 
   const reset = useCallback(() => {
     files.current.clear()
-    setReceipts([])
+    setReceipts((all) => {
+      all.forEach((r) => r.previewUrl && URL.revokeObjectURL(r.previewUrl))
+      return []
+    })
   }, [])
 
   return { receipts, add, addExamples, retry, remove, toggleItem, reset }
