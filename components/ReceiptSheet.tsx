@@ -1,17 +1,18 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { Box } from "@mui/material"
 import Checkbox from "@sj-ab/component-library.ui.checkbox"
 import Divider from "@sj-ab/component-library.ui.divider"
 import FormControlLabel from "@sj-ab/component-library.ui.form-control-label"
-import { Delete } from "@sj-ab/component-library.ui.icons"
+import { Delete, Search } from "@sj-ab/component-library.ui.icons"
 import Sheet from "@sj-ab/component-library.ui.sheet"
 import Stack from "@sj-ab/component-library.ui.stack"
 import TextButton from "@sj-ab/component-library.ui.text-button"
 import Typography from "@sj-ab/component-library.ui.typography"
 import { CATEGORY_LABEL, formatDate } from "@/lib/labels"
 import { BLOCKED_KINDS, formatKr, type Receipt } from "@/lib/reimbursement"
+import { ReceiptViewer } from "./ReceiptViewer"
 
 type Props = {
   receipt: Receipt | null
@@ -23,13 +24,18 @@ type Props = {
 /** Detaljer för ett kvitto. Öppnas som Sheet ovanpå listan, som i SJ:s appar. */
 export function ReceiptSheet({ receipt, onClose, onToggleItem, onRemove }: Props) {
   const headingRef = useRef<HTMLDivElement>(null)
+  const [fullscreen, setFullscreen] = useState(false)
+  const close = () => {
+    setFullscreen(false)
+    onClose()
+  }
   const title = receipt?.store ?? "Kvitto"
   const meta = [receipt?.category && CATEGORY_LABEL[receipt.category], formatDate(receipt?.date)].filter(Boolean).join(", ")
 
   return (
     <Sheet
       open={Boolean(receipt)}
-      onClose={onClose}
+      onClose={close}
       shouldCloseOnBackdropClick
       height="auto"
       width="medium"
@@ -37,7 +43,7 @@ export function ReceiptSheet({ receipt, onClose, onToggleItem, onRemove }: Props
       AppBarProps={{
         title,
         headingRef,
-        navigationButtons: [{ label: "Stäng", ariaLabel: "Stäng", variant: "close", action: onClose }],
+        navigationButtons: [{ label: "Stäng", ariaLabel: "Stäng", variant: "close", action: close }],
       }}
     >
       {receipt && (
@@ -52,6 +58,42 @@ export function ReceiptSheet({ receipt, onClose, onToggleItem, onRemove }: Props
           </Stack>
 
           {receipt.summary && <Typography variant="bodyRegular">{receipt.summary}</Typography>}
+
+          {receipt.previewUrl && (
+            <Stack useFlexGap spacing={1}>
+              <Box
+                component="button"
+                type="button"
+                onClick={() => setFullscreen(true)}
+                aria-label="Visa kvittot i helskärm"
+                sx={(theme) => ({
+                  display: "block",
+                  p: 0,
+                  border: 0,
+                  background: "none",
+                  cursor: "zoom-in",
+                  alignSelf: "flex-start",
+                  "&:focus-visible": theme.mixins.focusVisibleStyles?.() ?? {},
+                })}
+              >
+                <Box
+                  component="img"
+                  src={receipt.previewUrl}
+                  alt=""
+                  sx={{ display: "block", maxWidth: "100%", maxHeight: 200, objectFit: "contain" }}
+                />
+              </Box>
+              <Box>
+                <TextButton
+                  startIcon={<Search />}
+                  negativeMargins={{ top: false, right: false, bottom: false, left: true }}
+                  onClick={() => setFullscreen(true)}
+                >
+                  Visa kvittot i helskärm
+                </TextButton>
+              </Box>
+            </Stack>
+          )}
 
           {receipt.items.length > 0 && (
             <Stack useFlexGap spacing={1}>
@@ -101,28 +143,22 @@ export function ReceiptSheet({ receipt, onClose, onToggleItem, onRemove }: Props
             </Stack>
           )}
 
-          {receipt.previewUrl && (
-            <Box
-              component="img"
-              src={receipt.previewUrl}
-              alt={`Kvittot från ${title}`}
-              sx={{ display: "block", width: "100%", maxHeight: 360, objectFit: "contain", objectPosition: "left" }}
-            />
-          )}
-
           <Box>
             <TextButton
               startIcon={<Delete />}
               negativeMargins={{ top: false, right: false, bottom: false, left: true }}
               onClick={() => {
                 onRemove(receipt.id)
-                onClose()
+                close()
               }}
             >
               Ta bort kvittot
             </TextButton>
           </Box>
         </Stack>
+      )}
+      {receipt?.previewUrl && (
+        <ReceiptViewer open={fullscreen} src={receipt.previewUrl} title={title} onClose={() => setFullscreen(false)} />
       )}
     </Sheet>
   )
